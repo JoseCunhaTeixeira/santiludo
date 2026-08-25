@@ -16,13 +16,12 @@ first-arrival times, and Rayleigh-wave dispersion curves.
 
 ## Reference
 
-Solazzi, S. G., Bodet, L., Holliger, K., & Jougnot, D. (2021). Surface-wave
-dispersion in partially saturated soils: The role of capillary forces.
-*Journal of Geophysical Research: Solid Earth*, 126, e2021JB022074.
-https://doi.org/10.1029/2021JB022074
+> Solazzi, S. G., Bodet, L., Holliger, K., & Jougnot, D. (2021). Surface-wave
+> dispersion in partially saturated soils: The role of capillary forces.
+> *Journal of Geophysical Research: Solid Earth*, 126, e2021JB022074.
+> https://doi.org/10.1029/2021JB022074
 
-See [CITATION.cff](CITATION.cff) for citation metadata (also usable via
-GitHub's "Cite this repository" button).
+See [CITATION.cff](CITATION.cff) for citation metadata.
 
 ## Installation
 
