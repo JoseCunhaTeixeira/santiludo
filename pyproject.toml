@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "Cython>=3.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "santiludo"
+version = "0.1.0"
+description = "Rock-physics and surface-wave forward modelling for layered, partially saturated 1D soils"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "S. G. Solazzi" },
+    { name = "L. Bodet" },
+    { name = "J. Cunha Teixeira", email = "jose.cunha-teixeira@protonmail.com" },
+]
+dependencies = [
+    "numpy>=1.21",
+    "matplotlib>=3.5",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6", "pyright>=1.1.380", "Cython>=3.0"]
+
+[project.urls]
+Repository = "https://github.com/JoseCunhaTeixeira/Santiludo_layered"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["santiludo*"]
+
+[tool.setuptools.package-data]
+santiludo = ["_cpp/*.h", "*.pyi", "py.typed"]
+
+
+# -------------------------
+# Pyright configuration
+# -------------------------
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+
+include = ["src", "examples"]
+
+exclude = [
+    "**/__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "**/node_modules",
+    "**/.*",
+]
+
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnnecessaryIsInstance = false
+
+
+# -------------------------
+# Ruff configuration
+# -------------------------
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import sorting)
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "C4",  # flake8-comprehensions
+    "PIE", # flake8-pie
+    "RET", # flake8-return
+    "PTH", # pathlib usage
+    "NPY", # NumPy rules
+    "RUF", # Ruff-specific rules
+    "ANN", # annotations
+    "ARG", # unused arguments
+    "ERA", # commented-out code
+]
+
+ignore = [
+    "E501", # line length handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["santiludo"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true

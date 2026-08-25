@@ -1,42 +1,41 @@
-import subprocess
-import os
-from distutils.core import setup
-from distutils.extension import Extension
+import sys
+
 from Cython.Build import cythonize
+from setuptools import Extension, setup
 
+# MSVC (used by "distutils"-style builds on Windows) does not understand GCC/Clang
+# style optimization flags such as "-O3".
+if sys.platform == "win32":
+    opt_args = ["/O2"]
+else:
+    opt_args = ["-O3"]
 
-
-if not os.path.exists("./lib/"):
-   os.makedirs("./lib/")
-
-
+CPP_DIR = "src/santiludo/_cpp"
 
 extensions = [
-    Extension("lib.VGfunctions", 
-                ["src/VGfunctions.pyx"],
-                language="c++",
-                extra_compile_args=["-O3"],
-                extra_link_args=["-O3"]),
-
-    Extension("lib.RPfunctions", 
-                ["src/RPfunctions.pyx", "src/VGfunctions_src.cpp"],
-                language="c++",
-                extra_compile_args=["-O3"],
-                extra_link_args=["-O3"]),
-
-    Extension("lib.TTDSPfunctions", 
-                ["src/TTDSPfunctions.pyx"],
-                language="c++",
-                extra_compile_args=["-O3"],
-                extra_link_args=["-O3"]),
+    Extension(
+        "santiludo.VGfunctions",
+        [f"{CPP_DIR}/VGfunctions.pyx"],
+        language="c++",
+        extra_compile_args=opt_args,
+        extra_link_args=opt_args,
+    ),
+    Extension(
+        "santiludo.RPfunctions",
+        [f"{CPP_DIR}/RPfunctions.pyx", f"{CPP_DIR}/VGfunctions_src.cpp"],
+        language="c++",
+        extra_compile_args=opt_args,
+        extra_link_args=opt_args,
+    ),
+    Extension(
+        "santiludo.TTDSPfunctions",
+        [f"{CPP_DIR}/TTDSPfunctions.pyx"],
+        language="c++",
+        extra_compile_args=opt_args,
+        extra_link_args=opt_args,
+    ),
 ]
 
 setup(
-    ext_modules = cythonize(extensions)
+    ext_modules=cythonize(extensions, language_level=3),
 )
-
-
-
-subprocess.run(['mv', './src/RPfunctions.cpp', './lib/'])
-subprocess.run(['mv', './src/VGfunctions.cpp', './lib/'])
-subprocess.run(['mv', './src/TTDSPfunctions.cpp', './lib/'])
