@@ -13,16 +13,13 @@ authors = [
     { name = "L. Bodet" },
     { name = "J. Cunha Teixeira", email = "jose.cunha-teixeira@protonmail.com" },
 ]
-dependencies = [
-    "numpy>=1.21",
-    "matplotlib>=3.5",
-]
+dependencies = ["numpy>=1.21", "matplotlib>=3.5"]
 
 [project.optional-dependencies]
 dev = ["ruff>=0.6", "pyright>=1.1.380", "Cython>=3.0"]
 
 [project.urls]
-Repository = "https://github.com/JoseCunhaTeixeira/Santiludo_layered"
+Repository = "https://github.com/JoseCunhaTeixeira/santiludo"
 
 [tool.setuptools.packages.find]
 where = ["src"]
