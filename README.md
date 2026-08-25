@@ -35,7 +35,7 @@ To install it into another repo's environment straight from source (e.g. a
 git checkout or a private git URL), the same `pip install` commands work:
 
 ```bash
-pip install git+https://github.com/<owner>/Santiludo_layered.git
+pip install git+https://github.com/JoseCunhaTeixeira/Santiludo_layered.git
 ```
 
 ### Optional: surface-wave dispersion (`gpdc`)
