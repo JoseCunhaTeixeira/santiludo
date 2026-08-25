@@ -4,8 +4,6 @@ src/santiludo/_cpp/*.cpp
 !src/santiludo/_cpp/RPfunctions_src.cpp
 !src/santiludo/_cpp/TTDSPfunctions_src.cpp
 
-examples/output/
-
 .claude/
 
 # Byte-compiled / optimized / DLL files
