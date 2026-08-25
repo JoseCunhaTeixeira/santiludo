@@ -6,7 +6,7 @@ first-arrival times, and Rayleigh-wave dispersion curves.
 
 - Programmers: *S.G. Solazzi & L. Bodet* (Van Genuchten model courtesy of D. Jougnot)
 - First version: *2020/07/14*
-- Converted to C++ and interfaced with Python (Cython) by J. Cunha Teixeira, 2024/03
+- Converted to C++ and interfaced with Python (Cython) by J. Cunha Teixeira and B. Decker, 2024/03
 - Adapted to multi-layers, 2024/04 by J. Cunha Teixeira
 - Packaged as an installable, importable library, 2026/08 by J. Cunha Teixeira
 
