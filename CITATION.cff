@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below, and cite the accompanying paper."
+title: "santiludo"
+type: software
+authors:
+  - family-names: "Solazzi"
+    given-names: "S. G."
+  - family-names: "Bodet"
+    given-names: "L."
+  - family-names: "Jougnot"
+    given-names: "D."
+  - family-names: "Cunha Teixeira"
+    given-names: "J."
+    email: "jose.cunha-teixeira@protonmail.com"
+  - family-names: "Decker"
+    given-names: "B."
+repository-code: "https://github.com/JoseCunhaTeixeira/santiludo"
+license: MIT
+preferred-citation:
+  type: article
+  title: "Surface-wave dispersion in partially saturated soils: The role of capillary forces"
+  authors:
+    - family-names: "Solazzi"
+      given-names: "S. G."
+    - family-names: "Bodet"
+      given-names: "L."
+    - family-names: "Holliger"
+      given-names: "K."
+    - family-names: "Jougnot"
+      given-names: "D."
+  journal: "Journal of Geophysical Research: Solid Earth"
+  year: 2021
+  volume: 126
+  identifiers:
+    - type: doi
+      value: "10.1029/2021JB022074"
+  doi: "10.1029/2021JB022074"

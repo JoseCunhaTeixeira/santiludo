@@ -1,5 +1,9 @@
 # santiludo
 
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![DOI](https://img.shields.io/badge/DOI-10.1029%2F2021JB022074-blue)](https://doi.org/10.1029/2021JB022074)
+
 Rock-physics and surface-wave forward modelling for a layered, partially
 saturated 1D soil column: saturation profile, saturated P-/S-wave velocities,
 first-arrival times, and Rayleigh-wave dispersion curves.
@@ -16,6 +20,9 @@ Solazzi, S. G., Bodet, L., Holliger, K., & Jougnot, D. (2021). Surface-wave
 dispersion in partially saturated soils: The role of capillary forces.
 *Journal of Geophysical Research: Solid Earth*, 126, e2021JB022074.
 https://doi.org/10.1029/2021JB022074
+
+See [CITATION.cff](CITATION.cff) for citation metadata (also usable via
+GitHub's "Cite this repository" button).
 
 ## Installation
 
