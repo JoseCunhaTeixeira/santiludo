@@ -1,5 +1,6 @@
 #include <cmath>
 #include <vector>
+#include <string_view>
 #include "VGfunctions_src.h"
 
 

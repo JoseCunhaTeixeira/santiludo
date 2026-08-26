@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
+#include <string_view>
 
 struct vanGen_Result {
     std::vector<double> h, Sw, Swe;

@@ -4,11 +4,14 @@ from Cython.Build import cythonize
 from setuptools import Extension, setup
 
 # MSVC (used by "distutils"-style builds on Windows) does not understand GCC/Clang
-# style optimization flags such as "-O3".
+# style optimization flags such as "-O3". The C++ sources use std::string_view
+# (C++17), so the standard must be requested explicitly: MSVC defaults to C++14,
+# and while most GCC/Clang versions in use default to C++17 or later, it's not
+# guaranteed, so pin it there too.
 if sys.platform == "win32":
-    opt_args = ["/O2"]
+    opt_args = ["/O2", "/std:c++17"]
 else:
-    opt_args = ["-O3"]
+    opt_args = ["-O3", "-std=c++17"]
 
 CPP_DIR = "src/santiludo/_cpp"
 
