@@ -33,7 +33,7 @@ def main() -> None:
     ]
     geometry = AcquisitionGeometry(x0=0.5, nx=400, dx=0.5)
     # backend defaults to "disba"; pass backend="gpdc" to use Geopsy's gpdc instead
-    dispersion = DispersionConfig(nf=36, df=1, min_f=15, n_modes=1)
+    dispersion = DispersionConfig(nf=36, df=1, min_f=15, n_modes=1, backend="disba")
 
     scenarios = []
     for wt, color in zip(WTs, colors, strict=True):
