@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![DOI](https://img.shields.io/badge/DOI-10.1029%2F2021JB022074-blue)](https://doi.org/10.1029/2021JB022074)
 
-Rock-physics and surface-wave forward modelling for a layered, partially
+Petrophysics and surface-wave forward modelling for a layered, partially
 saturated 1D soil column: saturation profile, saturated P-/S-wave velocities,
 first-arrival times, and Rayleigh-wave dispersion curves.
 
