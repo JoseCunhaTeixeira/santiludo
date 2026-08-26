@@ -44,14 +44,21 @@ git checkout or a private git URL), the same `pip install` commands work:
 pip install git+https://github.com/JoseCunhaTeixeira/Santiludo_layered.git
 ```
 
-### Optional: surface-wave dispersion (`gpdc`)
+### Surface-wave dispersion backend: `disba` (default) or `gpdc`
 
-Dispersion-curve computation shells out to the `gpdc` program from
-[Geopsy](https://www.geopsy.org), which must be installed separately and be
-on `PATH`. It is **not** a Python dependency. If it's missing,
-`santiludo.seismic.compute_seismic_forward` raises a `GpdcNotFoundError` with
-installation pointers; the rock-physics API (`compute_rock_physics`) does not
-need it at all.
+Dispersion-curve computation supports two backends, selected via
+`DispersionConfig(backend=...)`:
+
+- `"disba"` (default) — the pure-Python [disba](https://github.com/keurfonluu/disba)
+  library, installed automatically as a regular dependency. No external
+  install step required.
+- `"gpdc"` — shells out to the `gpdc` program from
+  [Geopsy](https://www.geopsy.org), which must be installed separately and be
+  on `PATH`. It is **not** a Python dependency. If it's missing,
+  `santiludo.seismic.compute_seismic_forward` raises a `GpdcNotFoundError` with
+  installation pointers.
+
+The rock-physics API (`compute_rock_physics`) does not need either backend.
 
 ## Usage
 
@@ -67,7 +74,7 @@ rp.VPs  # P-wave velocity profile [m/s]
 rp.VSs  # S-wave velocity profile [m/s]
 ```
 
-Add seismic forward modelling (first arrivals + dispersion, requires `gpdc`):
+Add seismic forward modelling (first arrivals + dispersion, via `disba` by default):
 
 ```python
 from santiludo import AcquisitionGeometry, DispersionConfig, UnderLayer

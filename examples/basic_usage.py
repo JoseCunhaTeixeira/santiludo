@@ -32,6 +32,7 @@ def main() -> None:
         UnderLayer(thickness=0, vp=8000, vs=4000, rho=2500),
     ]
     geometry = AcquisitionGeometry(x0=0.5, nx=400, dx=0.5)
+    # backend defaults to "disba"; pass backend="gpdc" to use Geopsy's gpdc instead
     dispersion = DispersionConfig(nf=36, df=1, min_f=15, n_modes=1)
 
     scenarios = []

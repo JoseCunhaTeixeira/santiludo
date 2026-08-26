@@ -15,7 +15,7 @@ authors = [
     { name = "L. Bodet" },
     { name = "J. Cunha Teixeira", email = "jose.cunha-teixeira@protonmail.com" },
 ]
-dependencies = ["numpy>=1.21", "matplotlib>=3.5"]
+dependencies = ["numpy>=1.21", "matplotlib>=3.5", "disba>=0.7"]
 
 [project.optional-dependencies]
 dev = ["ruff>=0.6", "pyright>=1.1.380", "Cython>=3.0"]
