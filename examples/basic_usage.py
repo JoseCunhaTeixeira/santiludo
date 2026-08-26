@@ -23,8 +23,11 @@ def main() -> None:
     start = perf_counter()
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    layers = [Layer(soiltype="clay", thickness=5, N=9, frac=0.3)]
-    WTs = [2]  # Water table depths to compare [m]
+    layers = [
+        Layer(soiltype="sand", thickness=5, N=9, frac=0.3),
+        Layer(soiltype="clay", thickness=5, N=9, frac=0.3),
+    ]
+    WTs = [1, 2, 3, 4, 5]  # Water table depths to compare [m]
     colors = copper(np.linspace(0, 1, len(WTs)))
 
     under_layers = [

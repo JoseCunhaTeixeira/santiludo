@@ -198,11 +198,19 @@ def _build_disba_model(
     rock_physics: RockPhysicsResult,
     under_layers: Sequence[UnderLayer],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Flat thickness/vp/vs/rho arrays for disba.PhaseDispersion (km, km/s, km/s, g/cm3)."""
+    """Flat thickness/vp/vs/rho arrays for disba.PhaseDispersion (km, km/s, km/s, g/cm3).
+
+    ``rock_physics.thks`` (``np.diff(np.abs(zs))``) has one fewer element than
+    ``VPs``/``VSs``/``rhobs`` (inter-sample thickness vs. per-sample velocity/density),
+    so it's paired with the first ``nl`` velocity/density samples, dropping the very
+    last one — matching ``writeVelocityModel_src``'s ``thk[i]``/``vp[i]`` pairing
+    (``nl = thk.size()``) used by the gpdc backend.
+    """
+    nl = len(rock_physics.thks)
     thks = np.concatenate((rock_physics.thks, [layer.thickness for layer in under_layers]))
-    vps = np.concatenate((rock_physics.VPs, [layer.vp for layer in under_layers]))
-    vss = np.concatenate((rock_physics.VSs, [layer.vs for layer in under_layers]))
-    rhobs = np.concatenate((rock_physics.rhobs, [layer.rho for layer in under_layers]))
+    vps = np.concatenate((rock_physics.VPs[:nl], [layer.vp for layer in under_layers]))
+    vss = np.concatenate((rock_physics.VSs[:nl], [layer.vs for layer in under_layers]))
+    rhobs = np.concatenate((rock_physics.rhobs[:nl], [layer.rho for layer in under_layers]))
     return thks / 1000.0, vps / 1000.0, vss / 1000.0, rhobs / 1000.0
 
 
