@@ -25,24 +25,69 @@ See [CITATION.cff](CITATION.cff) for citation metadata.
 
 ## Installation
 
-Requires a C++ compiler (MSVC on Windows, gcc/clang on Linux/macOS) since the
-core physics is implemented in C++ and wrapped with Cython.
+### For consuming repos: prebuilt wheels (no compiler needed)
+
+Every tagged release (`vX.Y.Z`) is built into prebuilt wheels for Windows,
+Linux, and macOS (Intel + Apple Silicon) by
+[`.github/workflows/wheels.yml`](.github/workflows/wheels.yml), attached to
+the corresponding [GitHub Release](../../releases), and published to a static
+[PEP 503](https://peps.python.org/pep-0503/) index hosted on GitHub Pages at
+`https://josecunhateixeira.github.io/santiludo/simple/`. A prebuilt wheel
+already contains the compiled `santiludo.VGfunctions`, `santiludo.RPfunctions`,
+and `santiludo.TTDSPfunctions` extensions, so installing one does **not**
+require a C++ compiler.
+
+**Recommended (`uv`, any platform/Python version):** point at the index and
+`uv`/`pip` pick the right wheel for your environment automatically:
+
+```toml
+[project]
+dependencies = ["santiludo"]
+
+[[tool.uv.index]]
+name = "santiludo"
+url = "https://josecunhateixeira.github.io/santiludo/simple/"
+explicit = true
+
+[tool.uv.sources]
+santiludo = { index = "santiludo" }
+```
+
+or with plain `pip`:
+
+```bash
+pip install santiludo --extra-index-url https://josecunhateixeira.github.io/santiludo/simple/
+```
+
+**Alternative:** install one specific wheel directly from a release, if you
+don't want to add an extra index:
+
+```bash
+pip install https://github.com/JoseCunhaTeixeira/santiludo/releases/download/vX.Y.Z/santiludo-X.Y.Z-<tag-for-your-platform>.whl
+```
+
+Grab the exact URL for your OS/Python version from the release's assets on
+the [Releases page](../../releases) (e.g. `...-cp312-cp312-win_amd64.whl` for
+Windows/Python 3.12, `...-cp312-cp312-manylinux_2_17_x86_64.whl` for Linux,
+`...-cp312-cp312-macosx_11_0_arm64.whl` for Apple Silicon).
+
+### From source (requires a C++ compiler)
+
+Only needed for local development on `santiludo` itself, or if no prebuilt
+wheel matches your platform/Python version. Requires a C++ compiler (MSVC on
+Windows, gcc/clang on Linux/macOS) since the core physics is implemented in
+C++ and wrapped with Cython.
 
 ```bash
 pip install .
 # or, for local development:
 pip install -e ".[dev]"
+# or straight from a git checkout/URL:
+pip install git+https://github.com/JoseCunhaTeixeira/santiludo.git
 ```
 
 This builds three compiled extensions (`santiludo.VGfunctions`,
 `santiludo.RPfunctions`, `santiludo.TTDSPfunctions`) from `src/santiludo/_cpp/`.
-
-To install it into another repo's environment straight from source (e.g. a
-git checkout or a private git URL), the same `pip install` commands work:
-
-```bash
-pip install git+https://github.com/JoseCunhaTeixeira/Santiludo_layered.git
-```
 
 ### Surface-wave dispersion backend: `disba` (default) or `gpdc`
 

@@ -1,0 +1,96 @@
+name: Build wheels
+
+# Builds prebuilt wheels (with the C++/Cython extensions already compiled) for
+# Windows, Linux, and macOS (Intel + Apple Silicon), and attaches them to a
+# GitHub Release. This lets consuming repos `pip install` a wheel directly
+# without needing a C++ compiler installed locally.
+#
+# Trigger a release by pushing a tag, e.g.:
+#   git tag v0.1.0 && git push origin v0.1.0
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2
+        env:
+          # cp3{10..14}: matches the CPython versions numba/llvmlite (a disba
+          # dependency) reliably ship wheels for. Skip 32-bit and musl/PyPy
+          # targets, which numba does not support.
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
+          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux* pp*"
+          CIBW_ARCHS_MACOS: "auto"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  release:
+    name: Publish wheels to GitHub Release
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release and upload wheels
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.whl
+
+  publish_index:
+    name: Publish PEP 503 index to GitHub Pages
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Check out existing index (if any)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-old
+        continue-on-error: true
+
+      - name: Generate PEP 503 index
+        run: |
+          python3 scripts/generate_pep503_index.py \
+            "${{ github.repository }}" "${{ github.ref_name }}" \
+            dist gh-pages-old public
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          keep_files: true
