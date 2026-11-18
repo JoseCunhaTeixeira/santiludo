@@ -37,8 +37,11 @@ already contains the compiled `santiludo.VGfunctions`, `santiludo.RPfunctions`,
 and `santiludo.TTDSPfunctions` extensions, so installing one does **not**
 require a C++ compiler.
 
-**Recommended (`uv`, any platform/Python version):** point at the index and
-`uv`/`pip` pick the right wheel for your environment automatically:
+santiludo's dispersion curves are computed by `sigpipe-core` (Rust), whose
+prebuilt wheels are on sigpipe's index: both indexes are needed.
+
+**Recommended (`uv`, any platform/Python version):** point at the indexes and
+`uv`/`pip` pick the right wheels for your environment automatically:
 
 ```toml
 [project]
@@ -49,14 +52,22 @@ name = "santiludo"
 url = "https://josecunhateixeira.github.io/santiludo/simple/"
 explicit = true
 
+[[tool.uv.index]]
+name = "sigpipe-core"
+url = "https://josecunhateixeira.github.io/sigpipe/simple/"
+explicit = true
+
 [tool.uv.sources]
 santiludo = { index = "santiludo" }
+sigpipe-core = { index = "sigpipe-core" }
 ```
 
 or with plain `pip`:
 
 ```bash
-pip install santiludo --extra-index-url https://josecunhateixeira.github.io/santiludo/simple/
+pip install santiludo \
+    --extra-index-url https://josecunhateixeira.github.io/santiludo/simple/ \
+    --extra-index-url https://josecunhateixeira.github.io/sigpipe/simple/
 ```
 
 **Alternative:** install one specific wheel directly from a release, if you
@@ -89,13 +100,14 @@ pip install git+https://github.com/JoseCunhaTeixeira/santiludo.git
 This builds three compiled extensions (`santiludo.VGfunctions`,
 `santiludo.RPfunctions`, `santiludo.TTDSPfunctions`) from `src/santiludo/_cpp/`.
 
-### Surface-wave dispersion backend: `disba` (default) or `gpdc`
+### Surface-wave dispersion backend: `surf96` (default) or `gpdc`
 
 Dispersion-curve computation supports two backends, selected via
 `DispersionConfig(backend=...)`:
 
-- `"disba"` (default) — the pure-Python [disba](https://github.com/keurfonluu/disba)
-  library, installed automatically as a regular dependency. No external
+- `"surf96"` (default) — surf96's period equations and root search (Computer
+  Programs in Seismology), Rayleigh and Love waves, from the `sigpipe-core`
+  package, installed automatically as a regular dependency. No external
   install step required.
 - `"gpdc"` — shells out to the `gpdc` program from
   [Geopsy](https://www.geopsy.org), which must be installed separately and be
@@ -119,7 +131,7 @@ rp.VPs  # P-wave velocity profile [m/s]
 rp.VSs  # S-wave velocity profile [m/s]
 ```
 
-Add seismic forward modelling (first arrivals + dispersion, via `disba` by default):
+Add seismic forward modelling (first arrivals + dispersion, via `surf96` by default):
 
 ```python
 from santiludo import AcquisitionGeometry, DispersionConfig, UnderLayer

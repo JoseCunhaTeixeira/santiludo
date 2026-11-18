@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-14]
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-15]
 
     steps:
       - uses: actions/checkout@v7
@@ -29,9 +29,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.0
         env:
-          # cp3{10..14}: matches the CPython versions numba/llvmlite (a disba
-          # dependency) reliably ship wheels for. Skip 32-bit and musl/PyPy
-          # targets, which numba does not support.
+          # cp3{10..14}: the CPython versions santiludo supports. Skip 32-bit and
+          # musl/PyPy targets, for which sigpipe-core (a dependency) ships no wheel.
           CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux* pp*"
           CIBW_ARCHS_MACOS: "auto"

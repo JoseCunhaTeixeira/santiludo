@@ -35,7 +35,7 @@ from .seismic import (
     compute_seismic_forward,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "DEFAULT_FLUID_PROPERTIES",

@@ -2,10 +2,11 @@
 
 Computes P- and S-wave first-arrival times for a linear acquisition geometry,
 and Rayleigh/Love-wave phase-velocity dispersion curves via a selectable
-backend: the pure-Python ``disba`` library (default, installed automatically
-as a dependency) or the external ``gpdc`` program (Geopsy,
-https://www.geopsy.org, opt-in via ``DispersionConfig(backend="gpdc")``;
-must be installed separately and available on ``PATH``).
+backend: ``surf96`` (default: surf96's period equations and root search, from
+the ``sigpipe-core`` package, installed as a dependency) or the external
+``gpdc`` program (Geopsy, https://www.geopsy.org, opt-in via
+``DispersionConfig(backend="gpdc")``; must be installed separately and
+available on ``PATH``).
 """
 
 import shutil
@@ -15,12 +16,12 @@ from subprocess import CalledProcessError, run
 from typing import Literal
 
 import numpy as np
-from disba import DispersionError, PhaseDispersion
+import sigpipe_core
 
 from .model import RockPhysicsResult
 from .TTDSPfunctions import firstArrival, readDispersion, writeVelocityModel
 
-_DISBA_WAVE = {"R": "rayleigh", "L": "love"}
+_WAVES: dict[str, Literal["rayleigh", "love"]] = {"R": "rayleigh", "L": "love"}
 
 
 class GpdcNotFoundError(RuntimeError):
@@ -72,17 +73,17 @@ class DispersionConfig:
     n_modes: int = 1  # Number of modes to compute
     wave: str = "R"  # 'R' Rayleigh (PSV) or 'L' Love (SH)
     mode: str = "frequency"  # GPDC-only sampling mode ('frequency' or 'wavelength')
-    backend: Literal["gpdc", "disba"] = "disba"  # Dispersion-curve computation backend
+    backend: Literal["gpdc", "surf96"] = "surf96"  # Dispersion-curve computation backend
 
     def __post_init__(self) -> None:
-        if self.backend not in ("gpdc", "disba"):
-            raise ValueError(f"backend must be 'gpdc' or 'disba', got {self.backend!r}")
+        if self.backend not in ("gpdc", "surf96"):
+            raise ValueError(f"backend must be 'gpdc' or 'surf96', got {self.backend!r}")
         if self.wave not in ("R", "L"):
             raise ValueError(f"wave must be 'R' or 'L', got {self.wave!r}")
-        if self.backend == "disba" and self.mode != "frequency":
+        if self.backend == "surf96" and self.mode != "frequency":
             raise ValueError(
                 f"mode={self.mode!r} ('wavelength' sampling) is only supported by the "
-                "'gpdc' backend; disba only supports frequency-based sampling. "
+                "'gpdc' backend; surf96 only supports frequency-based sampling. "
                 "Use backend='gpdc' or mode='frequency'."
             )
 
@@ -194,11 +195,12 @@ def _compute_dispersion_gpdc(
     return readDispersion(process.stdout)
 
 
-def _build_disba_model(
+def _layer_arrays(
     rock_physics: RockPhysicsResult,
     under_layers: Sequence[UnderLayer],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Flat thickness/vp/vs/rho arrays for disba.PhaseDispersion (km, km/s, km/s, g/cm3).
+    """Flat thickness/vp/vs/rho arrays for ``sigpipe_core.phase_dispersion`` (km, km/s, km/s,
+    g/cm3), contiguous in float64.
 
     ``rock_physics.thks`` (``np.diff(np.abs(zs))``) has one fewer element than
     ``VPs``/``VSs``/``rhobs`` (inter-sample thickness vs. per-sample velocity/density),
@@ -211,37 +213,40 @@ def _build_disba_model(
     vps = np.concatenate((rock_physics.VPs[:nl], [layer.vp for layer in under_layers]))
     vss = np.concatenate((rock_physics.VSs[:nl], [layer.vs for layer in under_layers]))
     rhobs = np.concatenate((rock_physics.rhobs[:nl], [layer.rho for layer in under_layers]))
-    return thks / 1000.0, vps / 1000.0, vss / 1000.0, rhobs / 1000.0
+
+    def per_thousand(values: np.ndarray) -> np.ndarray:
+        return np.ascontiguousarray(values / 1000.0, dtype=np.float64)
+
+    return per_thousand(thks), per_thousand(vps), per_thousand(vss), per_thousand(rhobs)
 
 
-def _compute_dispersion_disba(
+def _compute_dispersion_surf96(
     rock_physics: RockPhysicsResult,
     under_layers: Sequence[UnderLayer],
     dispersion: DispersionConfig,
 ) -> tuple[list[np.ndarray], int]:
-    """Dispersion curve(s) via the disba pure-Python backend.
+    """Dispersion curve(s) by surf96 (``sigpipe_core.phase_dispersion``).
 
     Modes are computed one at a time (0 = fundamental) and truncated at the first
     mode that isn't resolvable over the requested frequency range, mirroring gpdc's
     own positional mode truncation in :func:`readDispersion`. This can't represent a
     "gap" (e.g. mode 2 resolvable but mode 1 not) any better than gpdc's output can.
     """
-    thks, vps, vss, rhobs = _build_disba_model(rock_physics, under_layers)
-    phase_dispersion = PhaseDispersion(thks, vps, vss, rhobs)
-
-    periods = 1.0 / dispersion.freqs[::-1]  # ascending period, as disba requires
-    wave = _DISBA_WAVE[dispersion.wave]
+    layers = _layer_arrays(rock_physics, under_layers)
+    # Increasing periods, as the root search takes them.
+    periods = np.ascontiguousarray(1.0 / dispersion.freqs[::-1], dtype=np.float64)
+    wave = _WAVES[dispersion.wave]
 
     dispersion_data: list[np.ndarray] = []
     for mode in range(dispersion.n_modes):
         try:
-            curve = phase_dispersion(periods, mode=mode, wave=wave)
-        except DispersionError:
+            found, velocity = sigpipe_core.phase_dispersion(periods, *layers, mode=mode, wave=wave)
+        except sigpipe_core.DispersionError:
             break
-        if curve.period.size == 0:
+        if found.size == 0:
             break
-        freqs_mode = 1.0 / curve.period[::-1]  # back to ascending frequency
-        vels_mode = curve.velocity[::-1] * 1000.0  # km/s -> m/s
+        freqs_mode = 1.0 / found[::-1]  # back to ascending frequency
+        vels_mode = velocity[::-1] * 1000.0  # km/s -> m/s
         dispersion_data.append(np.column_stack((freqs_mode, vels_mode)))
 
     return dispersion_data, len(dispersion_data)
@@ -296,7 +301,9 @@ def compute_seismic_forward(
     if dispersion.backend == "gpdc":
         dispersion_data, n_modes = _compute_dispersion_gpdc(rock_physics, under_layers, dispersion)
     else:
-        dispersion_data, n_modes = _compute_dispersion_disba(rock_physics, under_layers, dispersion)
+        dispersion_data, n_modes = _compute_dispersion_surf96(
+            rock_physics, under_layers, dispersion
+        )
 
     zs_seismic, VPs_full, VSs_full, rhobs_full = _extend_with_under_layers(
         rock_physics, under_layers

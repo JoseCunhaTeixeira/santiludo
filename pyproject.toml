@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "santiludo"
-version = "0.1.0"
+version = "0.2.0"
 description = "Rock-physics and surface-wave forward modelling for layered, partially saturated 1D soils"
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -15,7 +15,9 @@ authors = [
     { name = "L. Bodet" },
     { name = "J. Cunha Teixeira", email = "jose.cunha-teixeira@protonmail.com" },
 ]
-dependencies = ["numpy>=1.21", "matplotlib>=3.5", "disba>=0.7"]
+# sigpipe-core: the surf96 backend's dispersion curves, prebuilt wheels from sigpipe's index
+# (tool.uv.sources).
+dependencies = ["numpy>=1.21", "matplotlib>=3.5", "sigpipe-core>=0.1.0"]
 
 [project.optional-dependencies]
 dev = ["ruff>=0.6", "pyright>=1.1.380", "Cython>=3.0"]
@@ -29,6 +31,18 @@ include = ["santiludo*"]
 
 [tool.setuptools.package-data]
 santiludo = ["_cpp/*.h", "*.pyi", "py.typed"]
+
+
+# -------------------------
+# sigpipe-core: prebuilt-wheel index
+# -------------------------
+[[tool.uv.index]]
+name = "sigpipe-core"
+url = "https://josecunhateixeira.github.io/sigpipe/simple/"
+explicit = true
+
+[tool.uv.sources]
+sigpipe-core = { index = "sigpipe-core" }
 
 
 # -------------------------
